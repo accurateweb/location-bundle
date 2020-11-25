@@ -43,6 +43,8 @@ services:
 
   aw.location:
     class: Accurateweb\LocationBundle\Service\Location
+    arguments:
+      - "@aw.location.repository"
     public: true
 
   aw.location.collector:
@@ -50,3 +52,6 @@ services:
     arguments: ['@aw.location']
     tags:
       - { name: data_collector, template: '@AccuratewebLocation/DataCollector/location.html.twig', id: aw.location.collector }
+
+  aw.location.repository:
+    class: Accurateweb\LocationBundle\Model\UserLocationRepositoryInterface

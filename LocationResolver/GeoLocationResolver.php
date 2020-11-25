@@ -14,18 +14,16 @@
 namespace Accurateweb\LocationBundle\LocationResolver;
 
 use Accurateweb\LocationBundle\GeoLocation\GeoInterface;
-use Accurateweb\LocationBundle\Model\UserLocation;
+use Accurateweb\LocationBundle\Model\ResolvedUserLocation;
 use Doctrine\ORM\EntityRepository;
 
 class GeoLocationResolver implements LocationResolverInterface
 {
   private $geo;
-  private $cityRepository;
 
-  public function __construct (GeoInterface $geo, EntityRepository $cityRepository)
+  public function __construct (GeoInterface $geo)
   {
     $this->geo = $geo;
-    $this->cityRepository = $cityRepository;
   }
 
   public function getUserLocation()
@@ -37,20 +35,12 @@ class GeoLocationResolver implements LocationResolverInterface
       return null;
     }
 
-    /** @var CdekCity $city */
-    $city = $this->cityRepository->findOneBy(['name' => $cityName]);
-    $location = new UserLocation();
+    $location = new ResolvedUserLocation();
+
     $location->setCityName($cityName);
+    $location->setRegionName($this->geo->getRegionName());
+    $location->setRegionIso($this->geo->getRegionIso());
 
-    if ($city)
-    {
-      $location
-        ->setCityCode($city->getId())
-        ->setCountryCode($city->getCountryCode());
-      return $location;
-    }
-
-    return null;
-//    return $location;
+    return $location;
   }
 }

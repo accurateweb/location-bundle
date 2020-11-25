@@ -13,70 +13,129 @@
 
 namespace Accurateweb\LocationBundle\Service;
 
+use Accurateweb\LocationBundle\Exception\LocationNotFoundException;
+use Accurateweb\LocationBundle\Exception\LocationNotResolvedException;
 use Accurateweb\LocationBundle\LocationResolver\LocationResolverInterface;
-use Accurateweb\LocationBundle\Model\UserLocation;
-use Doctrine\ORM\EntityRepository;
+use Accurateweb\LocationBundle\Model\ResolvedUserLocation;
+use Accurateweb\LocationBundle\Model\UserLocationInterface;
+use Accurateweb\LocationBundle\Model\UserLocationRepositoryInterface;
 
 class Location
 {
-  private $location;
-  private $location_resolvers;
-  private $lastPriority;
+  private $resolvedLocation;
+  private $foundLocation;
 
-  public function __construct ()
+  private $userLocationRepository;
+
+  private $locationResolvers;
+
+  public function __construct(UserLocationRepositoryInterface $userLocationRepository)
   {
-    $this->location_resolvers = array();
-    $this->lastPriority = 0;
+    $this->locationResolvers = array();
+    $this->userLocationRepository = $userLocationRepository;
   }
 
   public function addLocationResolver(LocationResolverInterface $resolver, $priority=null)
   {
-    if (!$priority)
+    if (null === $priority)
     {
-      $priority = $this->lastPriority++;
+      $priority = 0;
     }
 
-    $this->location_resolvers[$priority] = $resolver;
+    $this->locationResolvers[] = [
+      'priority' => $priority,
+      'resolver' => $resolver
+    ];
+
     return $this;
   }
 
   /**
-   * @return UserLocation
+   * Returnes current user location. If no location has been set,
+   * resolves user location with a configured set of resolvers first.
+   *
+   * @return UserLocationInterface
+   * @throws LocationNotResolvedException
+   * @throws LocationNotFoundException
    */
   public function getLocation()
   {
-    if (!$this->location)
+    if ($this->foundLocation)
     {
-      $this->location = $this->resolveLocation();
+      return $this->foundLocation;
     }
 
-    return $this->location;
+    $resolvedLocation = $this->getResolvedLocation();
+
+    if ($resolvedLocation)
+    {
+      $this->foundLocation = $this->userLocationRepository->findByResolvedLocation($this->foundLocation);
+
+      if (!$this->foundLocation)
+      {
+        throw new LocationNotFoundException();
+      }
+    }
+
+    return $this->foundLocation;
   }
 
   /**
-   * @param UserLocation $location
+   * @return ResolvedUserLocation
+   * @throws LocationNotResolvedException
+   */
+  public function getResolvedLocation()
+  {
+    if (!$this->resolvedLocation)
+    {
+      $this->resolvedLocation = $this->resolveLocation();
+    }
+
+    return $this->resolvedLocation;
+  }
+
+  /**
+   * @param ResolvedUserLocation $resolvedLocation
    * @return $this
    */
-  public function setLocation(UserLocation $location)
+  public function setResolvedLocation(ResolvedUserLocation $resolvedLocation)
   {
-    $this->location = $location;
+    if ($this->resolvedLocation !== $resolvedLocation)
+    {
+      $this->resolvedLocation = $resolvedLocation;
+      $this->foundLocation = null;
+    }
+
     return $this;
   }
 
+  /**
+   * Resolves user location with a configured set of resolvers
+   *
+   * @return ResolvedUserLocation
+   * @throws LocationNotResolvedException
+   */
   protected function resolveLocation()
   {
     $location = null;
-    ksort($this->location_resolvers);
+    usort($this->locationResolvers, function($a, $b){
+      return $a['priority'] - $b['priority'];
+    });
 
     /** @var LocationResolverInterface $resolver */
-    foreach ($this->location_resolvers as $resolver)
+    foreach ($this->locationResolvers as $resolver)
     {
-      $location = $resolver->getUserLocation();
+      $location = $resolver['resolver']->getUserLocation();
 
       if ($location)
       {
         break;
       }
+    }
+
+    if (!$location)
+    {
+      throw new LocationNotResolvedException();
     }
 
     return $location;

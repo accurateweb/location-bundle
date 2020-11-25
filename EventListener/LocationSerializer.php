@@ -28,7 +28,7 @@ class LocationSerializer
 
   public function onKernelResponse(FilterResponseEvent $event)
   {
-    $user_location = $this->location->getLocation();
+    $user_location = $this->location->getResolvedLocation();
     $session = $event->getRequest()->getSession();
 
     if ($session)

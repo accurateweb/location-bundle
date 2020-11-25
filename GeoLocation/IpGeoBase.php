@@ -50,6 +50,16 @@ class IpGeoBase implements GeoInterface
     return $this->getValue('city');
   }
 
+  public function getRegionName()
+  {
+    return $this->getValue('region');
+  }
+
+  public function getRegionIso()
+  {
+    return null;
+  }
+
 
   public function getData()
   {

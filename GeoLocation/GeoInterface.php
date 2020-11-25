@@ -24,4 +24,8 @@ interface GeoInterface
   public function getCountryIso();
 
   public function getCityName();
+
+  public function getRegionName();
+
+  public function getRegionIso();
 }

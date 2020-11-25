@@ -50,6 +50,25 @@ class Sypexgeo implements GeoInterface
     return null;
   }
 
+  public function getRegion()
+  {
+    return $this->getValue('region');
+  }
+
+  public function getRegionName()
+  {
+    $region = $this->getRegion();
+
+    return $region ? $region['name_ru'] : null;
+  }
+
+  public function getRegionIso()
+  {
+    $region = $this->getRegion();
+
+    return $region ? $region['iso'] : null;
+  }
+
   /**
    * функция возвращет конкретное значение из полученного массива данных по ip
    *

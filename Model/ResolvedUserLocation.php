@@ -13,13 +13,18 @@
 
 namespace Accurateweb\LocationBundle\Model;
 
-class UserLocation
+class ResolvedUserLocation
 {
   private $cityName;
 
   private $cityCode;
 
+  private $regionName;
+
+  private $regionIso;
+
   private $countryCode;
+
 
   /**
    * @return mixed
@@ -74,4 +79,42 @@ class UserLocation
     $this->countryCode = $countryCode;
     return $this;
   }
+
+  /**
+   * @return mixed
+   */
+  public function getRegionName()
+  {
+    return $this->regionName;
+  }
+
+  /**
+   * @param mixed $regionName
+   * @return ResolvedUserLocation
+   */
+  public function setRegionName($regionName)
+  {
+    $this->regionName = $regionName;
+    return $this;
+  }
+
+  /**
+   * @return mixed
+   */
+  public function getRegionIso()
+  {
+    return $this->regionIso;
+  }
+
+  /**
+   * @param mixed $regionIso
+   * @return ResolvedUserLocation
+   */
+  public function setRegionIso($regionIso)
+  {
+    $this->regionIso = $regionIso;
+    return $this;
+  }
+
+
 }

@@ -13,7 +13,7 @@
 
 namespace Accurateweb\LocationBundle\LocationResolver;
 
-use Accurateweb\LocationBundle\Model\UserLocation;
+use Accurateweb\LocationBundle\Model\ResolvedUserLocation;
 
 class DefaultLocationResolver implements LocationResolverInterface
 {
@@ -21,7 +21,7 @@ class DefaultLocationResolver implements LocationResolverInterface
 
   public function __construct ($cityName, $cityCode, $countryCode)
   {
-    $this->location = new UserLocation();
+    $this->location = new ResolvedUserLocation();
     $this->location
       ->setCityName($cityName)
       ->setCityCode($cityCode)

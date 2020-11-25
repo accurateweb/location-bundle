@@ -21,13 +21,13 @@ use Symfony\Component\HttpKernel\DataCollector\DataCollectorInterface;
 class LocationCollector implements DataCollectorInterface
 {
   /**
-   * @var \Accurateweb\LocationBundle\Model\UserLocation
+   * @var \Accurateweb\LocationBundle\Model\ResolvedUserLocation
    */
   private $location;
 
   public function __construct (Location $location)
   {
-    $this->location = $location->getLocation();
+    $this->location = $location->getResolvedLocation();
   }
 
   public function collect (Request $request, Response $response, \Exception $exception = null)

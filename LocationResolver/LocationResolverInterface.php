@@ -14,12 +14,12 @@
 namespace Accurateweb\LocationBundle\LocationResolver;
 
 
-use Accurateweb\LocationBundle\Model\UserLocation;
+use Accurateweb\LocationBundle\Model\ResolvedUserLocation;
 
 interface LocationResolverInterface
 {
   /**
-   * @return UserLocation|null
+   * @return ResolvedUserLocation|null
    */
   public function getUserLocation();
 }

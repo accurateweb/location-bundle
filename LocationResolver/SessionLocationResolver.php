@@ -13,7 +13,7 @@
 
 namespace Accurateweb\LocationBundle\LocationResolver;
 
-use Accurateweb\LocationBundle\Model\UserLocation;
+use Accurateweb\LocationBundle\Model\ResolvedUserLocation;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class SessionLocationResolver implements LocationResolverInterface
@@ -35,7 +35,7 @@ class SessionLocationResolver implements LocationResolverInterface
     $locationData = $this->session->get('aw.location');
     $location = unserialize($locationData);
 
-    if (!$location instanceof UserLocation)
+    if (!$location instanceof ResolvedUserLocation)
     {
       return null;
     }
