@@ -12,7 +12,6 @@ services:
     autowire: false
     arguments:
       - '@aw.location.geo'
-      - '@app.logistic.cdek_city.repository'
     tags:
       - { name: aw.location.resolver, priority: 50 }
 
@@ -25,7 +24,7 @@ services:
       - '250'
       - '1'
     tags:
-      - { name: aw.location.resolver, priority: 100 }
+      - { name: aw.location.resolver, priority: -1 }
 
   aw.location.resolver.session:
     class: Accurateweb\LocationBundle\LocationResolver\SessionLocationResolver
@@ -33,7 +32,7 @@ services:
     public: false
     autowire: false
     tags:
-      - { name: aw.location.resolver, priority: 10 }
+      - { name: aw.location.resolver, priority: 100 }
 
   aw.location.serializer:
     class: Accurateweb\LocationBundle\EventListener\LocationSerializer

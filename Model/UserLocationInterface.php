@@ -11,4 +11,6 @@ interface UserLocationInterface
   public function getLocationId();
 
   public function getLocationName();
+  
+  public function getResolvedLocation();
 }

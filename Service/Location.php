@@ -65,35 +65,20 @@ class Location
       return $this->foundLocation;
     }
 
-    $resolvedLocation = $this->getResolvedLocation();
-
-    if ($resolvedLocation)
-    {
-      $this->foundLocation = $this->userLocationRepository->findByResolvedLocation($this->foundLocation);
-
-      if (!$this->foundLocation)
-      {
-        throw new LocationNotFoundException();
-      }
-    }
-
-    return $this->foundLocation;
+    return $this->resolveLocation();
   }
 
-  /**
-   * @return ResolvedUserLocation
-   * @throws LocationNotResolvedException
-   */
   public function getResolvedLocation()
   {
-    if (!$this->resolvedLocation)
-    {
-      $this->resolvedLocation = $this->resolveLocation();
-    }
-
     return $this->resolvedLocation;
   }
 
+  public function setLocation(UserLocationInterface $location)
+  {
+    $this->foundLocation = $location;
+    $this->resolvedLocation = $location->getResolvedLocation();
+  }
+  
   /**
    * @param ResolvedUserLocation $resolvedLocation
    * @return $this
@@ -103,7 +88,12 @@ class Location
     if ($this->resolvedLocation !== $resolvedLocation)
     {
       $this->resolvedLocation = $resolvedLocation;
-      $this->foundLocation = null;
+      $this->foundLocation = $this->userLocationRepository->findByResolvedLocation($resolvedLocation);
+
+      if (!$this->foundLocation)
+      {
+        throw new LocationNotFoundException();
+      }
     }
 
     return $this;
@@ -117,27 +107,29 @@ class Location
    */
   protected function resolveLocation()
   {
-    $location = null;
     usort($this->locationResolvers, function($a, $b){
-      return $a['priority'] - $b['priority'];
+      return $b['priority'] - $a['priority'];
     });
 
     /** @var LocationResolverInterface $resolver */
     foreach ($this->locationResolvers as $resolver)
     {
-      $location = $resolver['resolver']->getUserLocation();
+      $resolvedLocation = $resolver['resolver']->getUserLocation();
 
-      if ($location)
+      if ($resolvedLocation)
       {
-        break;
+        $foundLocation = $this->userLocationRepository->findByResolvedLocation($resolvedLocation);
+
+        if ($foundLocation)
+        {
+          $this->resolvedLocation = $resolvedLocation;
+          $this->foundLocation = $foundLocation;
+
+          return $foundLocation;
+        }
       }
     }
 
-    if (!$location)
-    {
-      throw new LocationNotResolvedException();
-    }
-
-    return $location;
+    throw new LocationNotResolvedException();
   }
 }

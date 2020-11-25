@@ -27,7 +27,7 @@ class LocationCollector implements DataCollectorInterface
 
   public function __construct (Location $location)
   {
-    $this->location = $location->getResolvedLocation();
+    $this->location = $location->getLocation();
   }
 
   public function collect (Request $request, Response $response, \Exception $exception = null)
