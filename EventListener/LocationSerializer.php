@@ -16,6 +16,7 @@ namespace Accurateweb\LocationBundle\EventListener;
 use Accurateweb\LocationBundle\Service\Location;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 class LocationSerializer
 {
@@ -28,12 +29,15 @@ class LocationSerializer
 
   public function onKernelResponse(FilterResponseEvent $event)
   {
-    $user_location = $this->location->getResolvedLocation();
-    $session = $event->getRequest()->getSession();
-
-    if ($session)
+    if ($event->getRequestType() === HttpKernelInterface::MASTER_REQUEST)
     {
-      $session->set('aw.location', serialize($user_location));
+      $user_location = $this->location->getResolvedLocation();
+      $session = $event->getRequest()->getSession();
+
+      if ($session && $user_location)
+      {
+        $session->set('aw.location', serialize($user_location));
+      }
     }
   }
 }
