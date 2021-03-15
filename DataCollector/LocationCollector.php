@@ -13,12 +13,14 @@
 
 namespace Accurateweb\LocationBundle\DataCollector;
 
+use Accurateweb\LocationBundle\Exception\LocationNotFoundException;
+use Accurateweb\LocationBundle\Exception\LocationNotResolvedException;
 use Accurateweb\LocationBundle\Service\Location;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\DataCollector\DataCollectorInterface;
+use Symfony\Component\HttpKernel\DataCollector\DataCollector;
 
-class LocationCollector implements DataCollectorInterface
+class LocationCollector extends DataCollector
 {
   /**
    * @var \Accurateweb\LocationBundle\Model\ResolvedUserLocation
@@ -27,11 +29,23 @@ class LocationCollector implements DataCollectorInterface
 
   public function __construct (Location $location)
   {
-    $this->location = $location->getLocation();
+    $this->location = $location;
   }
 
   public function collect (Request $request, Response $response, \Exception $exception = null)
   {
+    try
+    {
+      $this->data = $this->location->getLocation();
+    }
+    catch (LocationNotResolvedException $e)
+    {
+      $this->data = null;
+    }
+    catch (LocationNotFoundException $e)
+    {
+      $this->data = null;
+    }
   }
 
   public function getName ()
@@ -41,11 +55,11 @@ class LocationCollector implements DataCollectorInterface
 
   public function getLocation()
   {
-    return $this->location;
+    return $this->data;
   }
 
   public function reset ()
   {
-    $this->location = null;
+    $this->data = null;
   }
 }

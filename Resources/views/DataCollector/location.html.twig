@@ -2,7 +2,12 @@
 
 {% block toolbar %}
     {% set icon %}
-        <span class="sf-toolbar-value">{{ collector.location.cityName }}</span>
+        {% if collector.location %}
+            <span class="sf-toolbar-value">{{ collector.location.cityName }}</span>
+            <span class="sf-toolbar-value">{{ collector.location.countryCode }}</span>
+        {% else %}
+            <span class="sf-toolbar-value">Not resolved</span>
+        {% endif %}
     {% endset %}
 
     {{ include('@WebProfiler/Profiler/toolbar_item.html.twig', { 'link': true }) }}
@@ -21,6 +26,8 @@
 {% endblock %}
 
 {% block panel %}
-    <h2>Location</h2>
-    <div>Current Location: {{ collector.location.cityName }}, {{ collector.location.cityCode }}, {{ collector.location.countryCode }}</div>
+    {% if collector.location %}
+        <h2>Location</h2>
+        <div>Current Location: {{ collector.location.cityName }}, {{ collector.location.cityCode }}, {{ collector.location.countryCode }}</div>
+    {% endif %}
 {% endblock %}
